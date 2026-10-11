@@ -1,0 +1,6 @@
+node_modules/
+*.tmp
+# Local-only reference clone of upstream Yomitan (36MB+). Not needed to
+# build, test or publish: schemas are vendored in src/vendor/schemas/ and
+# test fixtures in test/fixtures/.
+third_party/

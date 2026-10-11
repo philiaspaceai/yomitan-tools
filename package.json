@@ -1,0 +1,39 @@
+{
+  "name": "yomitan-tools",
+  "version": "0.1.0",
+  "description": "Universal Node.js toolkit for AI agents to search, read, edit, add, delete, validate and render Yomitan-format dictionaries.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "nemuirenren <puteraperdanagb@gmail.com>",
+  "homepage": "https://github.com/philiaspaceai/yomitan-tools",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/philiaspaceai/yomitan-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/philiaspaceai/yomitan-tools/issues"
+  },
+  "keywords": [
+    "yomitan",
+    "dictionary",
+    "japanese",
+    "agent",
+    "ai-agent"
+  ],
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src/"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@zip.js/zip.js": "^2.7.54",
+    "ajv": "^8.17.1"
+  }
+}
