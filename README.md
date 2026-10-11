@@ -1,7 +1,12 @@
-# yomitan-tools
+# yomitan-tools [![npm version](https://img.shields.io/npm/v/yomitan-tools)](https://www.npmjs.com/package/yomitan-tools)
 
 Universal Node.js toolkit for **AI agents** to search, read, edit, add,
 delete, validate and render **any Yomitan-format dictionary**.
+
+```sh
+npm install yomitan-tools
+```
+
 
 The tool is driven purely by Yomitan's official schemas + importer rules
 (vendored under `src/vendor/`, see `THIRD_PARTY_NOTES.md`), so it works on
