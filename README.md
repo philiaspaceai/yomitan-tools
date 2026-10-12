@@ -7,13 +7,15 @@ dictionary format behind the Yomitan Japanese pop-up dictionary extension
 (JMdict, JMnedict, KANJIDIC-based, monolingual kokugo dictionaries like
 Sanseido and Oubunsha, Jitendex, and 100+ more). Built for **AI agents and
 LLM-powered tools**: search, read, edit, add, delete, and validate any
-Yomitan dictionary (`.zip` or extracted folder), and render entries to
-human-readable **Markdown**.
+Yomitan dictionary (`.zip` or extracted folder), render entries to
+human-readable **Markdown**, or start a brand-new dictionary from zero with
+`initDictionary`.
 
 - 🔍 Search terms, kanji, frequency/pitch metadata and tags (streaming — safe on 600MB+ dictionaries)
 - ✏️ Add, update and delete entries with schema-checked, atomic saves
 - ✅ Validate like Yomitan itself (Ajv + structural + media-reference checks)
 - 📝 Render any entry to Markdown with pitch accent, frequency and tag notes resolved
+- 🆕 Create a new dictionary from scratch (`initDictionary`) — valid from the first byte
 
 ```sh
 npm install yomitan-tools
