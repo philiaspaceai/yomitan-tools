@@ -82,6 +82,23 @@ export function validateSingleEntry(bankType, entry, version) {
   return validateAgainst(key, [entry]);
 }
 
+/**
+ * Assert a plain object is a valid index.json (schema + non-empty title/revision).
+ * @param {unknown} obj
+ * @returns {object} the same object, typed as index
+ * @throws {Error} when invalid
+ */
+export function assertValidIndex(obj) {
+  const check = validateAgainst('index', obj);
+  if (!check.ok) {
+    throw new Error(`Invalid index.json: ${JSON.stringify(check.errors)}`);
+  }
+  if (typeof obj.title !== 'string' || obj.title === '' || typeof obj.revision !== 'string' || obj.revision === '') {
+    throw new Error('Invalid index.json: title and revision must be non-empty strings');
+  }
+  return obj;
+}
+
 /** Keep error payloads small and JSON-safe for agent consumption. */
 function summarizeAjvErrors(errors) {
   const first = errors.slice(0, 3).map((e) => ({

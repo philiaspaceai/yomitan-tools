@@ -7,7 +7,7 @@ import {
   STYLES_FILE,
   classifyBankFile,
 } from './constants.js';
-import {detectVersion, schemaKeyFor, validateAgainst, validateDictionary, validateSingleEntry} from './validate.js';
+import {detectVersion, schemaKeyFor, validateAgainst, assertValidIndex, validateDictionary, validateSingleEntry} from './validate.js';
 import {renderEntry as renderRawEntry} from './render.js';
 
 const DEFAULT_LIMIT = 50;
@@ -78,14 +78,7 @@ export class YomitanDictionary {
 
   /** Stage a replacement index.json (schema-checked). Does not save. */
   async setIndex(obj) {
-    const {validateAgainst} = await import('./validate.js');
-    const check = validateAgainst('index', obj);
-    if (!check.ok) {
-      throw new Error(`Invalid index.json: ${JSON.stringify(check.errors)}`);
-    }
-    if (typeof obj.title !== 'string' || obj.title === '' || typeof obj.revision !== 'string' || obj.revision === '') {
-      throw new Error('Invalid index.json: title and revision must be non-empty strings');
-    }
+    assertValidIndex(obj);
     this._store.stageJson(INDEX_FILE, obj);
     await this._refreshInfo();
     return await this.getIndex();
@@ -421,6 +414,80 @@ export async function openDictionary(p) {
   const dict = new YomitanDictionary(store);
   await dict._refreshInfo();
   return dict;
+}
+
+const INDEX_OPTIONAL_STRING_FIELDS = [
+  'author', 'description', 'attribution', 'url',
+  'sourceLanguage', 'targetLanguage', 'minimumYomitanVersion',
+  'indexUrl', 'downloadUrl',
+];
+
+/**
+ * Create a new empty dictionary from scratch (folder or .zip) and open it.
+ * The result validates cleanly; use addEntry() to fill it.
+ *
+ * @param {string} p target path (.zip extension creates an archive, otherwise a directory)
+ * @param {object} opts
+ * @param {string} opts.title required, non-empty
+ * @param {string} opts.revision required, non-empty
+ * @param {number} [opts.format=3] 1, 2 or 3
+ * @param {boolean} [opts.sequenced]
+ * @param {string} [opts.author] [opts.description] [opts.attribution] [opts.url]
+ * @param {string} [opts.sourceLanguage] [opts.targetLanguage] ISO codes
+ * @param {string} [opts.frequencyMode] 'occurrence-based' | 'rank-based'
+ * @param {string} [opts.minimumYomitanVersion]
+ * @param {boolean} [opts.isUpdatable] requires indexUrl + downloadUrl
+ * @param {string} [opts.styles] CSS content for styles.css
+ * @param {boolean} [opts.overwrite=false] refuse to touch existing paths by default
+ * @returns {Promise<YomitanDictionary>} opened handle on the new dictionary
+ */
+export async function initDictionary(p, opts = {}) {
+  const {promises: fs} = await import('node:fs');
+  const path = await import('node:path');
+  const target = path.resolve(p);
+  const {title, revision, format = 3, sequenced, frequencyMode, isUpdatable, styles, overwrite = false} = opts;
+
+  const index = {title, revision, format};
+  if (typeof sequenced !== 'undefined') { index.sequenced = sequenced; }
+  if (typeof frequencyMode !== 'undefined') { index.frequencyMode = frequencyMode; }
+  if (typeof isUpdatable !== 'undefined') { index.isUpdatable = isUpdatable; }
+  for (const f of INDEX_OPTIONAL_STRING_FIELDS) {
+    if (typeof opts[f] !== 'undefined') { index[f] = opts[f]; }
+  }
+  assertValidIndex(index); // fail fast, before touching disk
+  if (typeof styles !== 'undefined' && typeof styles !== 'string') {
+    throw new Error('initDictionary opts.styles must be a string');
+  }
+
+  let exists = false;
+  try {
+    await fs.stat(target);
+    exists = true;
+  } catch { /* absent — good */ }
+  if (exists && !overwrite) {
+    throw new Error(`Refusing to overwrite existing path (pass overwrite:true): ${p}`);
+  }
+  if (exists) {
+    await fs.rm(target, {recursive: true, force: true});
+  }
+
+  const indexText = JSON.stringify(index, null, 2) + '\n';
+  if (/\.zip$/i.test(target)) {
+    await fs.mkdir(path.dirname(target), {recursive: true});
+    const {BlobWriter, TextReader, ZipWriter} = await import('@zip.js/zip.js');
+    const zw = new ZipWriter(new BlobWriter());
+    await zw.add('index.json', new TextReader(indexText));
+    if (typeof styles === 'string') { await zw.add('styles.css', new TextReader(styles)); }
+    const blob = await zw.close();
+    const tmp = `${target}.${process.pid}.tmp`;
+    await fs.writeFile(tmp, Buffer.from(await blob.arrayBuffer()));
+    await fs.rename(tmp, target);
+  } else {
+    await fs.mkdir(target, {recursive: true});
+    await fs.writeFile(path.join(target, 'index.json'), indexText);
+    if (typeof styles === 'string') { await fs.writeFile(path.join(target, 'styles.css'), styles); }
+  }
+  return await openDictionary(target);
 }
 
 /** @param {EntryRef} ref @param {number} size */

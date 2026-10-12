@@ -8,7 +8,7 @@
 //   const hits = await dict.searchTerms('打つ');
 //   console.log(await dict.render(hits[0].ref));
 //   await dict.close();
-export {openDictionary, YomitanDictionary} from './dictionary.js';
+export {openDictionary, initDictionary, YomitanDictionary} from './dictionary.js';
 export {validateDictionary, validateSingleEntry, detectVersion} from './validate.js';
 export {renderEntry, renderTerm, renderKanji, renderTag, renderMeta} from './render.js';
 export {splitTags, effectiveReading, classifyBankFile} from './constants.js';

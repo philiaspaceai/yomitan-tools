@@ -69,6 +69,7 @@ await dict.close();
 | Method | Purpose |
 |---|---|
 | `openDictionary(path)` | Open a `.zip` or extracted directory. |
+| `initDictionary(path, opts)` | Create a new empty dictionary (`title`, `revision`, `format?`, languages, `styles?`, `overwrite?`). |
 | `listBanks()` | `{index, term[], termMeta[], kanji[], kanjiMeta[], tag[], styles, media[], others[]}` |
 | `countEntries()` | Entry counts per bank type (reads everything; slow on huge dicts). |
 | `getIndex()` / `setIndex(obj)` | Read / stage replacement `index.json` (schema-checked). |
