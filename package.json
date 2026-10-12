@@ -1,6 +1,6 @@
 {
   "name": "yomitan-tools",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Universal Node.js toolkit for AI agents to search, read, edit, add, delete, validate and render Yomitan-format dictionaries.",
   "type": "module",
   "engines": {
